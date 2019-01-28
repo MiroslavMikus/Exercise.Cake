@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Exercise.Cake.Test
 {
     [TestClass]
-    public class UnitTest1
+    public class CakeTest
     {
         [TestMethod]
         public void TestSum()
