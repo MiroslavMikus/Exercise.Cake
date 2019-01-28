@@ -15,13 +15,13 @@ Task("Restore-NuGet-Packages")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    NuGetRestore("Exercise.Cake.sln");
+    NuGetRestore(@"**\*.sln");
 });
 
 Task("Compile")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(()=>{
-        MSBuild("Exercise.Cake.sln");
+        MSBuild(@"**\*.sln");
     });
 
 Task("Test")
