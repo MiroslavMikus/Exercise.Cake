@@ -26,8 +26,12 @@ Task("Compile")
 
 Task("Test")
     .IsDependentOn("Compile")
-    .Does(()=>{
-        MSTest(@"**\bin\**\*.Test.dll");
+    .Does(()=> {
+        VSTest(@"**\bin\**\*.Test.dll", new VSTestSettings
+        {
+            Parallel = true,
+            TestAdapterPath = @"Exercise.Cake.Test\bin\Debug\"
+        });
     });
 
 RunTarget(target);
