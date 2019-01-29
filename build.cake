@@ -1,9 +1,11 @@
 #tool "nuget:?package=Microsoft.TestPlatform&version=15.7.0"
 #tool "nuget:?package=OpenCover&version=4.6.519"
 #tool "nuget:?package=ReportGenerator&version=4.0.9"
+#tool "nuget:?package=GitVersion&version=3.6.5"
 
 #load "build/paths.cake"
 
+var packageVersion = "0.1.0";
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,6 +89,23 @@ Task("Report-Coverage")
         );
     });
 
+Task("Version")
+    .Does(()=>{
+        var version = GitVersion();
+        Information($"Calculated SemVersion {version.SemVer}");
+
+        packageVersion = version.NuGetVersion;
+
+        Information($"Calculated package version {packageVersion}");
+        if(!BuildSystem.IsLocalBuild)
+        {
+            GitVersion(new GitVersionSettings
+            {
+                OutputType = GitVersionOutput.BuildServer,
+                UpdateAssemblyInfo = true
+            });
+        }
+    });
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
