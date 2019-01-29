@@ -1,4 +1,6 @@
 #tool "nuget:?package=Microsoft.TestPlatform&version=15.7.0"
+#load "build/paths.cake"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -37,7 +39,7 @@ Task("Restore-NuGet-Packages")
     }
 });
 
-Task("Build")
+Task("Generic-Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(()=>{
         foreach(var file in GetFiles("*.sln"))
@@ -46,7 +48,13 @@ Task("Build")
             MSBuild(file.ToString(), settings => settings.SetConfiguration(configuration));
         }
     });
-
+    
+Task("Build")
+    .IsDependentOn("Restore-NuGet-Packages")
+    .Does(()=>{
+        MSBuild(Paths.SolutionPath.ToString(), settings => settings.SetConfiguration(configuration));
+    });
+    
 Task("Test")
     .IsDependentOn("Build")
     .Does(()=> {
