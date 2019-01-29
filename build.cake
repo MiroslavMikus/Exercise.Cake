@@ -1,10 +1,23 @@
-var target = Argument("target", "Compile");
+#tool "nuget:?package=Microsoft.TestPlatform&version=15.7.0"
 
-var buildDir = System.IO.Directory.GetDirectories("./", "Debug", SearchOption.AllDirectories);
+///////////////////////////////////////////////////////////////////////////////
+// ARGUMENTS
+///////////////////////////////////////////////////////////////////////////////
+var target = Argument("target", "Compile");
+var configuration = Argument("configuration", "Debug");
+
+///////////////////////////////////////////////////////////////////////////////
+// TASKS
+///////////////////////////////////////////////////////////////////////////////
+Task("temp")
+    .Does(()=>{
+        var path = Context.Tools.Resolve("vstest.console.exe");
+        Information(path);
+    });
 
 Task("Clean")
     .Does(()=>{
-        foreach (var dir in buildDir)
+        foreach (var dir in GetDirectories("**/Debug"))
         {
             Information($"Cleaning: {dir}");
             CleanDirectory(dir);
@@ -15,23 +28,39 @@ Task("Restore-NuGet-Packages")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    NuGetRestore(@"**\*.sln");
+    // NuGetRestore("**\*.sln");
+
+    foreach(var file in GetFiles("*.sln"))
+    {
+        Information("Nuget-restore: {0}", file);
+        NuGetRestore(GetFiles(file.ToString()));
+    }
 });
 
-Task("Compile")
+Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(()=>{
-        MSBuild(@"**\*.sln");
+        foreach(var file in GetFiles("*.sln"))
+        {
+            Information("Compiling: {0}", file);
+            MSBuild(file.ToString(), settings => settings.SetConfiguration(configuration));
+        }
     });
 
 Task("Test")
-    .IsDependentOn("Compile")
+    .IsDependentOn("Build")
     .Does(()=> {
-        VSTest(@"**\bin\**\*.Test.dll", new VSTestSettings
+        VSTest($"**/bin/{configuration}/*.Test.dll", new VSTestSettings
         {
             Parallel = true,
             TestAdapterPath = @"Exercise.Cake.Test\bin\Debug\"
         });
     });
 
-RunTarget(target);
+//////////////////////////////////////////////////////////////////////
+// TASK TARGETS
+//////////////////////////////////////////////////////////////////////
+Task("Default")
+    .IsDependentOn("Test");
+
+RunTarget(target); 
