@@ -1,7 +1,8 @@
 #tool "nuget:?package=Microsoft.TestPlatform&version=15.7.0"
 #tool "nuget:?package=OpenCover&version=4.6.519"
 #tool "nuget:?package=ReportGenerator&version=4.0.9"
-#tool "nuget:?package=GitVersion&version=3.6.5"
+#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0"
+#tool "nuget:?package=NuGet.CommandLine&version=4.9.2"
 
 #load "build/paths.cake"
 
@@ -11,7 +12,37 @@ var packageVersion = "0.1.0";
 ///////////////////////////////////////////////////////////////////////////////
 var target = Argument("target", "Compile");
 var configuration = Argument("configuration", "Debug");
-var codeCoverageReportPath= Argument<FilePath>("CodeCoverageReportPath", "coverage.zip");
+var codeCoverageReportPath= Argument<FilePath>("CodeCoverageReportPath", $"{Paths.ReportDirectory}/coverage.zip");
+var packageOutputPath = Argument<DirectoryPath>("PackageOutputPath", "packages");
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Setup / Teardown
+///////////////////////////////////////////////////////////////////////////////
+
+// Executed BEFORE the first task.
+Setup(context =>
+{
+    EnsureDirectoryExists(Paths.ReportDirectory);
+});
+
+// Executed AFTER the last task.
+// Teardown(context =>
+// {
+
+// });
+
+// Executed BEFORE the first task.
+// TaskSetup(setupContext =>
+// {
+
+// });
+
+// Executed AFTER the last task.
+// TaskTeardown(teardownContext =>
+// {
+
+// });
 
 ///////////////////////////////////////////////////////////////////////////////
 // TASKS
@@ -90,7 +121,7 @@ Task("Report-Coverage")
     });
 
 Task("Version")
-    .Does(()=>{
+    .Does(()=> {
         var version = GitVersion();
         Information($"Calculated SemVersion {version.SemVer}");
 
@@ -106,6 +137,31 @@ Task("Version")
             });
         }
     });
+
+Task("Remove-Packages")
+    .Does(()=>{
+        Information($"Cleaning {packageOutputPath}");
+        CleanDirectory(packageOutputPath);
+    });
+
+Task("Package-Nuget")
+    .IsDependentOn("Test")
+    .IsDependentOn("Version")
+    .IsDependentOn("Remove-Packages")
+    .Does(()=>{
+        EnsureDirectoryExists(packageOutputPath);
+
+        NuGetPack(
+            Paths.NuspecFile,
+            new NuGetPackSettings
+            {
+                Version = packageVersion,
+                OutputDirectory = packageOutputPath,
+                NoPackageAnalysis = true
+            }
+        );
+    });
+
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////

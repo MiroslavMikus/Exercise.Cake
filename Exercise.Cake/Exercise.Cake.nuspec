@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>Cake test nuget</id>
+    <version>0.1.0.3</version>
+    <description>SomeTest</description>
+    <owners>Miroslav Mikus</owners>
+    <title>Cake Test nuget</title>
+    <authors>Miroslav Mikus</authors>
+  </metadata>
+  <files>
+    <file src="bin\Debug\Exercise.Cake.exe" />
+  </files>
+</package>
