@@ -92,6 +92,9 @@ Task("Test")
         OpenCover(
             tool => tool.VSTest($"**/bin/{configuration}/*.Test.dll", new VSTestSettings
                 {
+                    EnableCodeCoverage = true,
+                    InIsolation = true,
+                    Logger = "trx",
                     Parallel = true,
                     TestAdapterPath = @"Exercise.Cake.Test\bin\Debug\"
                 }),
