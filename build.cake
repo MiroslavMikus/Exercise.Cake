@@ -128,13 +128,17 @@ Task("Version")
         packageVersion = version.NuGetVersion;
 
         Information($"Calculated package version {packageVersion}");
+
         if(!BuildSystem.IsLocalBuild)
         {
+            // update assembly version
             GitVersion(new GitVersionSettings
             {
                 OutputType = GitVersionOutput.BuildServer,
                 UpdateAssemblyInfo = true
             });
+            // could be commited
+            // GitCommit("./", "CakeBuild", "cake@build.com",$"Update assembly version to {packageVersion}")
         }
     });
 
