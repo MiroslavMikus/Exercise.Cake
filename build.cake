@@ -54,6 +54,19 @@ Task("temp")
         Information(MakeAbsolute(Paths.ReportDirectory));
     });
 
+Task("Update-Nuget")
+    .Does(()=>{
+        // does not work for the new PackageReference format..
+        // https://github.com/NuGet/Home/issues/4103
+        NuGetUpdate(
+            Paths.SolutionPath, 
+            new NuGetUpdateSettings ()
+            {
+                Id = new List<string>() {"FluentValidation"},
+                Version = "8.1.3"
+            });
+    });
+
 Task("Clean")
     .Does(()=>{
         foreach (var dir in GetDirectories("**/Debug"))
