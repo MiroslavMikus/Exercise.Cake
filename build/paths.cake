@@ -5,3 +5,8 @@ public static class Paths
     public static string ReportDirectory => "report";
     public static FilePath NuspecFile => "Exercise.Cake/Exercise.Cake.nuspec";
 }
+
+public static FilePath Combine(DirectoryPath directory, FilePath file)
+{
+    return directory.CombineWithFilePath(file);
+}
