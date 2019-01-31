@@ -51,6 +51,7 @@ Task("temp")
     .Does(()=>{
         var path = Context.Tools.Resolve("vstest.console.exe");
         Information(path);
+        Information(MakeAbsolute(Paths.ReportDirectory));
     });
 
 Task("Clean")
